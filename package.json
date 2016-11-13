@@ -1,0 +1,22 @@
+{
+  "name": "vue-finger",
+  "version": "0.1.0",
+  "description": "Vue plugin for supporting touch gesture",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Muxi-Studio/vue-finger.git"
+  },
+  "keywords": [
+    "vuejs"
+  ],
+  "author": "Muxi FE Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Muxi-Studio/vue-finger/issues"
+  },
+  "homepage": "https://github.com/Muxi-Studio/vue-finger#readme"
+}
