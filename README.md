@@ -5,7 +5,7 @@ Vue plugin for  supporting touch gesture. Support Vue 2.0+.
 Gesture supported:
 
 + Swipe
-
++ SwipeMove
 
 
 
@@ -45,3 +45,26 @@ methods:{
 </script>
 
 ```
+
+
+### Event
+
+#### Swipe
+
+`e.direction`
+
+the direction of the swipe: "Left", "Right", "Up", "Down".
+
+#### SwipeMove
+
+`e.direction`
+
+the direction of the swipe: "Left", "Right", "Up", "Down".
+
+`e.distenceX`
+
+the cumulate distence on X axis of the swipe.
+
+`e.distenceY`
+
+the cumulate distence on Y axis of the swipe.
