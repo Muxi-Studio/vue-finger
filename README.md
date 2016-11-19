@@ -55,6 +55,14 @@ methods:{
 
 the direction of the swipe: "Left", "Right", "Up", "Down".
 
+`e.deltaX`
+
+the delta on X axis of the whole swipe.
+
+`e.deltaY`
+
+the delta on Y axis of the whole swipe.
+
 #### SwipeMove
 
 `e.direction`

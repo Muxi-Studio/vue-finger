@@ -37,6 +37,8 @@ vueFingerConstructor.prototype = {
         if ((this.x2 && Math.abs(this.x1 - this.x2) > 30) ||
             (this.y2 && Math.abs(this.y1 - this.y2) > 30)) {
             e.direction = this._swipeDirection(this.x1, this.x2, this.y1, this.y2);
+            e.deltaX = this.x2 - this.x1  
+            e.deltaY = this.y2 - this.y1
             if (this.swipe) this.swipe(e)
         }
     },
