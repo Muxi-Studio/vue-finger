@@ -17,15 +17,24 @@ vueFingerConstructor.prototype = {
         if (!e.touches) return
         this.x1 = e.touches[0].pageX
         this.y1 = e.touches[0].pageY
+        this.previous = {
+            x1: this.x1,
+            y1: this.y1
+        }
     },
     move: function(e) {
         var currentX = e.touches[0].pageX,
             currentY = e.touches[0].pageY
         this.x2 = currentX
         this.y2 = currentY
-			
-        e.distanceX = currentX - this.x1
-        e.distanceY = currentY - this.y1
+		
+        e.deltaX = currentX - this.previous.x1
+        e.deltaY = currentY - this.previous.y1
+        
+        this.previous = {
+            x1: currentX,
+            y1: currentY
+        }
 
         if ((currentX && Math.abs(e.distanceX) > 30) ||
             (currentY && Math.abs(e.distanceY) > 30)) {
@@ -37,8 +46,8 @@ vueFingerConstructor.prototype = {
         if ((this.x2 && Math.abs(this.x1 - this.x2) > 30) ||
             (this.y2 && Math.abs(this.y1 - this.y2) > 30)) {
             e.direction = this._swipeDirection(this.x1, this.x2, this.y1, this.y2);
-            e.deltaX = this.x2 - this.x1  
-            e.deltaY = this.y2 - this.y1
+            e.distanceX = this.x2 - this.x1  
+            e.distanceY = this.y2 - this.y1
             if (this.swipe) this.swipe(e)
         }
     },
