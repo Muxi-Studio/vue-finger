@@ -21,6 +21,8 @@ vueFingerConstructor.prototype = {
             x1: this.x1,
             y1: this.y1
         }
+        e.distanceX = 0 
+        e.distanceY = 0
     },
     move: function(e) {
         var currentX = e.touches[0].pageX,
@@ -28,6 +30,9 @@ vueFingerConstructor.prototype = {
         this.x2 = currentX
         this.y2 = currentY
 		
+        e.distanceX = this.x2 - this.x1  
+        e.distanceY = this.y2 - this.y1
+
         e.deltaX = currentX - this.previous.x1
         e.deltaY = currentY - this.previous.y1
         
