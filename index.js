@@ -25,7 +25,6 @@ vueFingerConstructor.prototype = {
         this.x1 = e.touches[0].pageX
         this.y1 = e.touches[0].pageY
         if(e.touches.length > 1){
-            console.log("scale:",e.customscale)
             this.p1 = e.touches[1].pageX
             this.q1 = e.touches[1].pageY
             this.pintchDistance1 = Math.sqrt(Math.pow((this.x1-this.p1),2) + Math.pow((this.y1-this.q1),2))
@@ -65,9 +64,7 @@ vueFingerConstructor.prototype = {
             }else{
                 if(e.customscale - (this.pintchDistance1 - this.pintchDistance2)/this.pintchDistance < 1){
                     e.customscale = 10.0
-                    console.log(e)
                 }else{
-                console.log("jaajaj")
                     e.customscale -= (this.pintchDistance1 - this.pintchDistance2)/this.pintchDistance
                 }
             }
@@ -128,7 +125,6 @@ vueFinger.install = function(Vue, options) {
 
     Vue.directive('finger', {
         bind: function(el, binding, vnode, oldVnode) {
-            console.log(binding)
             if (binding.arg === "swipe") {
                 var ins = new vueFingerConstructor(el, {
                     swipe: binding.value
