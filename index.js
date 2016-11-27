@@ -1,10 +1,14 @@
 var vueFingerConstructor = function(el, options) {
     this.el = el
-        // add touch event
-    this.el.addEventListener("touchstart", this.start.bind(this), false)
-    this.el.addEventListener("touchmove", this.move.bind(this), false)
-    this.el.addEventListener("touchend", this.end.bind(this), false)
-    this.el.addEventListener("touchcancel", this.cancel.bind(this), false)
+    // add touch event
+    this.startCallback = this.start.bind(this)
+    this.moveCallback = this.move.bind(this)
+    this.endCallback = this.end.bind(this)
+    this.cancelCallback = this.cancel.bind(this)
+    this.el.addEventListener("touchstart", this.startCallback, false)
+    this.el.addEventListener("touchmove", this.moveCallback, false)
+    this.el.addEventListener("touchend", this.endCallback, false)
+    this.el.addEventListener("touchcancel", this.cancelCallback, false)
 
     // init 
     this.x1 = this.x2 = this.y1 = this.y2 = null;
@@ -38,7 +42,6 @@ vueFingerConstructor.prototype = {
     },
     move: function(e) {
         e.preventDefault()
- 
         var currentX = e.touches[0].pageX,
             currentY = e.touches[0].pageY;
             if(e.touches.length > 1){
@@ -91,6 +94,7 @@ vueFingerConstructor.prototype = {
         }
     },
     end: function(e) {
+        e.preventDefault()
         if ((this.x2 && Math.abs(this.x1 - this.x2) > 30) ||
             (this.y2 && Math.abs(this.y1 - this.y2) > 30)) {
             e.direction = this._swipeDirection(this.x1, this.x2, this.y1, this.y2);
@@ -103,11 +107,11 @@ vueFingerConstructor.prototype = {
 
     },
     detach: function() {
-        // add touch event
-        this.el.removeEventListener("touchstart", this.start.bind(this), false)
-        this.el.removeEventListener("touchmove", this.move.bind(this), false)
-        this.el.removeEventListener("touchend", this.end.bind(this), false)
-        this.el.removeEventListener("touchcancel", this.cancel.bind(this), false)
+        // remove touch event
+        this.el.removeEventListener("touchstart", this.startCallback, false)
+        this.el.removeEventListener("touchmove", this.moveCallback, false)
+        this.el.removeEventListener("touchend", this.endCallback, false)
+        this.el.removeEventListener("touchcancel", this.cancelCallback, false)
     },
     _swipeDirection: function(x1, x2, y1, y2) {
         return Math.abs(x1 - x2) >= Math.abs(y1 - y2) ? (x1 - x2 > 0 ? 'Left' : 'Right') : (y1 - y2 > 0 ? 'Up' : 'Down')
