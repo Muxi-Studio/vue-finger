@@ -11,15 +11,23 @@ var vueFingerConstructor = function(el, options) {
     this.el.addEventListener("touchcancel", this.cancelCallback, false)
 
     // init 
-    this.x1 = this.x2 = this.y1 = this.y2 = null;
+    this.x1 = this.x2 = this.y1 = this.y2 = null
     this.swipe = options.swipe
     this.swipeMove = options.swipeMove
     this.pintch = options.pintch
-    this.pintchDistance = 50
+    this.tab = options.tab
+    this.pintchDistance = 400
+    this.tapTimeout
+
+    // scale
+    this.currentScale = 1.0
 }
 
 vueFingerConstructor.prototype = {
     start: function(e) {
+        // reset
+        this.x1 = this.x2 = this.y1 = this.y2 = null
+
         e.preventDefault()
         if (!e.touches) return
         this.x1 = e.touches[0].pageX
@@ -30,22 +38,30 @@ vueFingerConstructor.prototype = {
             this.pintchDistance1 = Math.sqrt(Math.pow((this.x1-this.p1),2) + Math.pow((this.y1-this.q1),2))
         }
         
-
         this.previous = {
             x1: this.x1,
             y1: this.y1
         }
         e.distanceX = 0 
         e.distanceY = 0
-        
+
+        // set tap timout
+        if (this.tab) {
+            this.tapTimeout = setTimeout(this.tab.bind({}, e),200)
+        }  
     },
     move: function(e) {
+        if (this.tapTimeout) {
+            clearTimeout(this.tapTimeout)
+            this.tapTimeout = null
+        }
         e.preventDefault()
         var currentX = e.touches[0].pageX,
             currentY = e.touches[0].pageY;
+
             if(e.touches.length > 1){
-                currentP = e.touches[1].pageX,
-                currentQ = e.touches[1].pageY,
+                var currentP = e.touches[1].pageX,
+                    currentQ = e.touches[1].pageY;
                 this.p2 = currentP,
                 this.q2 = currentQ
             }
@@ -54,20 +70,22 @@ vueFingerConstructor.prototype = {
         this.y2 = currentY
         this.p2 = currentP
         this.q2 = currentQ
+
 		
         e.distanceX = this.x2 - this.x1  
         e.distanceY = this.y2 - this.y1
         if(e.touches.length > 1){
             this.pintchDistance2 = Math.sqrt(Math.pow((this.x2 - this.p2),2) + Math.pow((this.y2 - this.q2),2))
             if(this.pintchDistance2 > this.pintchDistance1){
-                e.customscale = 1 + (this.pintchDistance2 - this.pintchDistance1)/this.pintchDistance
+                e.customscale =  this.currentScale + (this.pintchDistance2 - this.pintchDistance1)/this.pintchDistance
             }else{
-                if(e.customscale - (this.pintchDistance1 - this.pintchDistance2)/this.pintchDistance < 1){
-                    e.customscale = 10.0
+                if(this.currentScale - (this.pintchDistance1 - this.pintchDistance2)/this.pintchDistance < 1){
+                    e.customscale = 1.0
                 }else{
-                    e.customscale -= (this.pintchDistance1 - this.pintchDistance2)/this.pintchDistance
+                    e.customscale = this.currentScale - (this.pintchDistance1 - this.pintchDistance2)/this.pintchDistance
                 }
             }
+            this.currentScale = e.customscale
             if (this.pintch) {
                 this.pintch(e)
             }
@@ -91,6 +109,8 @@ vueFingerConstructor.prototype = {
         }
     },
     end: function(e) {
+
+
         e.preventDefault()
         if ((this.x2 && Math.abs(this.x1 - this.x2) > 30) ||
             (this.y2 && Math.abs(this.y1 - this.y2) > 30)) {
@@ -120,6 +140,7 @@ var vueFinger = {}
 vueFinger.swipeArr = []
 vueFinger.swipeMoveArr = []
 vueFinger.pintchArr = []
+vueFinger.tabArr = []
 
 vueFinger.install = function(Vue, options) {
 
@@ -143,6 +164,12 @@ vueFinger.install = function(Vue, options) {
                 })
                 vueFinger.pintchArr.push(ins)
             }
+            if (binding.arg === "tab") {
+                var ins = new vueFingerConstructor(el, {
+                    tab: binding.value
+                })
+                vueFinger.tabArr.push(ins)
+            }
         },
         unbind: function() {
             vueFinger.swipeArr.forEach(function(item) {
@@ -154,6 +181,10 @@ vueFinger.install = function(Vue, options) {
                 item = null
             })
             vueFinger.pintchArr.forEach(function(item) {
+                item.detach()
+                item = null
+            })
+            vueFinger.tabArr.forEach(function(item) {
                 item.detach()
                 item = null
             })
