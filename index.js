@@ -1,3 +1,5 @@
+var util = require("./src/util.js")
+
 var vueFingerConstructor = function(el, options) {
     this.el = el
     // add touch event
@@ -5,17 +7,22 @@ var vueFingerConstructor = function(el, options) {
     this.moveCallback = this.move.bind(this)
     this.endCallback = this.end.bind(this)
     this.cancelCallback = this.cancel.bind(this)
-    this.el.addEventListener("touchstart", this.startCallback, false)
-    this.el.addEventListener("touchmove", this.moveCallback, false)
-    this.el.addEventListener("touchend", this.endCallback, false)
-    this.el.addEventListener("touchcancel", this.cancelCallback, false)
+
+    if (options.tapOnlyFlag) {
+         this.el.addEventListener("touchstart", this.startCallback, false)
+    }else{ 
+        this.el.addEventListener("touchstart", this.startCallback, false)
+        this.el.addEventListener("touchmove", this.moveCallback, false)
+        this.el.addEventListener("touchend", this.endCallback, false)
+        this.el.addEventListener("touchcancel", this.cancelCallback, false)
+    }
 
     // init 
     this.x1 = this.x2 = this.y1 = this.y2 = null
     this.swipe = options.swipe
     this.swipeMove = options.swipeMove
     this.pintch = options.pintch
-    this.tab = options.tab
+    this.tap = options.tap
     this.pintchDistance = 400
     this.tapTimeout
 
@@ -25,6 +32,7 @@ var vueFingerConstructor = function(el, options) {
 
 vueFingerConstructor.prototype = {
     start: function(e) {
+        console.log("start")
         // reset
         this.x1 = this.x2 = this.y1 = this.y2 = null
 
@@ -46,16 +54,22 @@ vueFingerConstructor.prototype = {
         e.distanceY = 0
 
         // set tap timout
-        if (this.tab) {
-            this.tapTimeout = setTimeout(this.tab.bind({}, e),200)
+        if (this.tap) {
+            if (e.target !== this.el) {
+                this.tapTimeout = 
+                setTimeout(this.tap.bind({}, e, Array.prototype.slice.call(this.el.childNodes).indexOf(e.target)),200)
+            }else {
+                this.tapTimeout = setTimeout(this.tap.bind({}, e),200)
+            }
         }  
     },
     move: function(e) {
+        e.preventDefault()
         if (this.tapTimeout) {
             clearTimeout(this.tapTimeout)
             this.tapTimeout = null
         }
-        e.preventDefault()
+       
         var currentX = e.touches[0].pageX,
             currentY = e.touches[0].pageY;
 
@@ -135,59 +149,31 @@ vueFingerConstructor.prototype = {
     }
 }
 
-
+var instancesHash = {}
 var vueFinger = {}
-vueFinger.swipeArr = []
-vueFinger.swipeMoveArr = []
-vueFinger.pintchArr = []
-vueFinger.tabArr = []
 
 vueFinger.install = function(Vue, options) {
 
     Vue.directive('finger', {
         bind: function(el, binding, vnode, oldVnode) {
-            if (binding.arg === "swipe") {
-                var ins = new vueFingerConstructor(el, {
-                    swipe: binding.value
-                })
-                vueFinger.swipeArr.push(ins)
-            }
-            if (binding.arg === "swipeMove") {
-                var ins = new vueFingerConstructor(el, {
-                    swipeMove: binding.value
-                })
-                vueFinger.swipeMoveArr.push(ins)
-            }
-            if (binding.arg === "pintch") {
-                var ins = new vueFingerConstructor(el, {
-                    pintch: binding.value
-                })
-                vueFinger.pintchArr.push(ins)
-            }
-            if (binding.arg === "tab") {
-                var ins = new vueFingerConstructor(el, {
-                    tab: binding.value
-                })
-                vueFinger.tabArr.push(ins)
+            if (!el.dataset.vfingerId) {
+                el.dataset.vfingerId = util.hashGen()
+                var options = {}  
+                if (binding.arg == "tapOnly") {
+                    options.tapOnlyFlag = binding.value
+                }else {
+                    options[binding.arg] = binding.value
+                }
+                var ins = new vueFingerConstructor(el, options)
+                instancesHash[el.dataset.vfingerId] = ins
+            }else {
+                instancesHash[el.dataset.vfingerId][binding.arg] = binding.value
             }
         },
-        unbind: function() {
-            vueFinger.swipeArr.forEach(function(item) {
-                item.detach()
-                item = null
-            })
-            vueFinger.swipeMoveArr.forEach(function(item) {
-                item.detach()
-                item = null
-            })
-            vueFinger.pintchArr.forEach(function(item) {
-                item.detach()
-                item = null
-            })
-            vueFinger.tabArr.forEach(function(item) {
-                item.detach()
-                item = null
-            })
+        unbind: function(el) {
+            var ins = instancesHash[el.dataset.vfingerId]
+            ins.detach()
+            ins = null
         }
     })
 
