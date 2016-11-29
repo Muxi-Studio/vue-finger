@@ -6,7 +6,9 @@ Gesture supported:
 
 + Swipe
 + SwipeMove
-
++ Pinch
++ Tap
++ Double Tap(Coming soon)
 
 
 ### Install
@@ -76,3 +78,11 @@ the cumulate distence on X axis of the swipe.
 `e.distenceY`
 
 the cumulate distence on Y axis of the swipe.
+
+#### Pinch
+
+`e.customScale`
+
+#### Tap
+
+no custom event props 
