@@ -25,13 +25,15 @@ var vueFingerConstructor = function(el, options) {
     this.tap = options.tap
     this.pintchDistance = 400
     this.tapTimeout
-
+    this.mutiTouchWating = true
+    this.swipeMoveTimeout
     // scale
     this.currentScale = 1.0
 }
 
 vueFingerConstructor.prototype = {
     start: function(e) {
+        var self = this
         console.log("start")
         // reset
         this.x1 = this.x2 = this.y1 = this.y2 = null
@@ -41,6 +43,7 @@ vueFingerConstructor.prototype = {
         this.x1 = e.touches[0].pageX
         this.y1 = e.touches[0].pageY
         if(e.touches.length > 1){
+            this.mutiTouchWating = false
             this.p1 = e.touches[1].pageX
             this.q1 = e.touches[1].pageY
             this.pintchDistance1 = Math.sqrt(Math.pow((this.x1-this.p1),2) + Math.pow((this.y1-this.q1),2))
@@ -62,6 +65,10 @@ vueFingerConstructor.prototype = {
                 this.tapTimeout = setTimeout(this.tap.bind({}, e),200)
             }
         }  
+        this.mutiTouchWating = true
+        setTimeout(function(){
+            self.mutiTouchWating = false
+        },40)
     },
     move: function(e) {
         e.preventDefault()
@@ -73,29 +80,29 @@ vueFingerConstructor.prototype = {
         var currentX = e.touches[0].pageX,
             currentY = e.touches[0].pageY;
 
-            if(e.touches.length > 1){
-                var currentP = e.touches[1].pageX,
-                    currentQ = e.touches[1].pageY;
-                this.p2 = currentP,
-                this.q2 = currentQ
-            }
+        if(e.touches.length > 1){
+            var currentP = e.touches[1].pageX,
+                currentQ = e.touches[1].pageY;
+            this.p2 = currentP
+            this.q2 = currentQ
+        }
 
         this.x2 = currentX
         this.y2 = currentY
-        this.p2 = currentP
-        this.q2 = currentQ
 
-		
         e.distanceX = this.x2 - this.x1  
         e.distanceY = this.y2 - this.y1
         if(e.touches.length > 1){
             this.pintchDistance2 = Math.sqrt(Math.pow((this.x2 - this.p2),2) + Math.pow((this.y2 - this.q2),2))
+            //alert(this.pintchDistance2,this.pintchDistance1)
             if(this.pintchDistance2 > this.pintchDistance1){
                 e.customscale =  this.currentScale + (this.pintchDistance2 - this.pintchDistance1)/this.pintchDistance
             }else{
+
                 if(this.currentScale - (this.pintchDistance1 - this.pintchDistance2)/this.pintchDistance < 1){
                     e.customscale = 1.0
                 }else{
+
                     e.customscale = this.currentScale - (this.pintchDistance1 - this.pintchDistance2)/this.pintchDistance
                 }
             }
@@ -119,7 +126,7 @@ vueFingerConstructor.prototype = {
         if ((currentX && Math.abs(e.distanceX) > 30) ||
             (currentY && Math.abs(e.distanceY) > 30)) {
         	e.direction = this._swipeDirection(this.x1, this.x2, this.y1, this.y2);
-        	if (this.swipeMove) this.swipeMove(e)
+        	if (this.swipeMove && (e.touches.length == 1) && !this.mutiTouchWating) this.swipeMove(e)
         }
     },
     end: function(e) {
