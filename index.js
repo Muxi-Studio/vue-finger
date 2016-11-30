@@ -8,14 +8,11 @@ var vueFingerConstructor = function(el, options) {
     this.endCallback = this.end.bind(this)
     this.cancelCallback = this.cancel.bind(this)
 
-    if (options.tapOnlyFlag) {
-         this.el.addEventListener("touchstart", this.startCallback, false)
-    }else{ 
-        this.el.addEventListener("touchstart", this.startCallback, false)
-        this.el.addEventListener("touchmove", this.moveCallback, false)
-        this.el.addEventListener("touchend", this.endCallback, false)
-        this.el.addEventListener("touchcancel", this.cancelCallback, false)
-    }
+
+    this.el.addEventListener("touchstart", this.startCallback, false)
+    this.el.addEventListener("touchmove", this.moveCallback, false)
+    this.el.addEventListener("touchend", this.endCallback, false)
+    this.el.addEventListener("touchcancel", this.cancelCallback, false)
 
     // init 
     this.x1 = this.x2 = this.y1 = this.y2 = null
@@ -28,7 +25,6 @@ var vueFingerConstructor = function(el, options) {
     this.mutiTouchWating = true
     this.swipeMoveTimeout
     // scale
-    this.currentScale = 1.0
 }
 
 vueFingerConstructor.prototype = {
@@ -95,22 +91,12 @@ vueFingerConstructor.prototype = {
         if(e.touches.length > 1){
             this.pintchDistance2 = Math.sqrt(Math.pow((this.x2 - this.p2),2) + Math.pow((this.y2 - this.q2),2))
             //alert(this.pintchDistance2,this.pintchDistance1)
-            if(this.pintchDistance2 > this.pintchDistance1){
-                e.customscale =  this.currentScale + (this.pintchDistance2 - this.pintchDistance1)/this.pintchDistance
-            }else{
-
-                if(this.currentScale - (this.pintchDistance1 - this.pintchDistance2)/this.pintchDistance < 1){
-                    e.customscale = 1.0
-                }else{
-
-                    e.customscale = this.currentScale - (this.pintchDistance1 - this.pintchDistance2)/this.pintchDistance
-                }
-            }
-            this.currentScale = e.customscale
+            e.customscale =  (this.pintchDistance2 - this.pintchDistance1)/this.pintchDistance
             if (this.pintch) {
                 this.pintch(e)
             }
         }
+            
         
 
         e.deltaX = currentX - this.previous.x1
@@ -166,11 +152,7 @@ vueFinger.install = function(Vue, options) {
             if (!el.dataset.vfingerId) {
                 el.dataset.vfingerId = util.hashGen()
                 var options = {}  
-                if (binding.arg == "tapOnly") {
-                    options.tapOnlyFlag = binding.value
-                }else {
-                    options[binding.arg] = binding.value
-                }
+                options[binding.arg] = binding.value
                 var ins = new vueFingerConstructor(el, options)
                 instancesHash[el.dataset.vfingerId] = ins
             }else {
