@@ -86,3 +86,12 @@ the cumulate distence on Y axis of the swipe.
 #### Tap
 
 no custom event props 
+
+### Contributor
+
++ [zxc0328](https://github.com/zxc0328)
++ [Elegenthus](https://github.com/Elegenthus)
+
+### Lisence
+
+DWTFYW 
