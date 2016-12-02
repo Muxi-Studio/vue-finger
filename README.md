@@ -8,7 +8,7 @@ Gesture supported:
 + SwipeMove
 + Pinch
 + Tap
-+ Double Tap(Coming soon)
++ Double Tap
 
 
 ### Install
@@ -83,6 +83,13 @@ the cumulate distence on Y axis of the swipe.
 
 `e.customScale`
 
+the difference value between latest scale and last scale
+
 #### Tap
 
 no custom event props 
+
+#### doubleTap
+
+no custom event props 
+
