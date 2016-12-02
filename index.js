@@ -20,10 +20,12 @@ var vueFingerConstructor = function(el, options) {
     this.swipeMove = options.swipeMove
     this.pintch = options.pintch
     this.tap = options.tap
+    this.doubleTap = options.doubleTap
     this.pintchDistance = 400
     this.tapTimeout
     this.mutiTouchWating = true
     this.swipeMoveTimeout
+    this.doubleTapTimeout
     // scale
 }
 
@@ -58,19 +60,39 @@ vueFingerConstructor.prototype = {
                 this.tapTimeout = 
                 setTimeout(this.tap.bind({}, e, Array.prototype.slice.call(this.el.childNodes).indexOf(e.target)),200)
             }else {
-                this.tapTimeout = setTimeout(this.tap.bind({}, e),200)
+                this.tapTimeout = setTimeout(function(){
+                    if (!self.doubleTapTimeout) {
+                        this.tap.bind({}, e)
+                    }
+                },200)
             }
         }  
+
         this.mutiTouchWating = true
         setTimeout(function(){
             self.mutiTouchWating = false
         },40)
+
+        if (this.doubleTap && (e.touches.length == 1)) {
+            if (this.doubleTapTimeout){
+                this.doubleTap()
+                this.doubleTapTimeout = null
+            }else{
+                this.doubleTapTimeout = setTimeout(function(){
+                    this.doubleTapTimeout = null
+                },100)
+            }
+        }
     },
     move: function(e) {
         e.preventDefault()
         if (this.tapTimeout) {
             clearTimeout(this.tapTimeout)
             this.tapTimeout = null
+        }
+        if (this.doubleTapTimeout) {
+            clearTimeout(this.doubleTapTimeout)
+            this.doubleTapTimeout = null
         }
        
         var currentX = e.touches[0].pageX,
