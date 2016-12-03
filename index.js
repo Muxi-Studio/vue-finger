@@ -62,7 +62,8 @@ vueFingerConstructor.prototype = {
             }else {
                 this.tapTimeout = setTimeout(function(){
                     if (!self.doubleTapTimeout) {
-                        this.tap.bind({}, e)
+                        console.log(self.tap)
+                        self.tap()
                     }
                 },200)
             }
